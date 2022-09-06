@@ -6,12 +6,11 @@
     :key="item" 
     :floor="item"
     :currentFloor="currentFloor"
+    :isGoing="isGoing"
     v-model:queue="queue"
     @call="callElevatorToFloor"
     ></floor-component>
   </div>
-    queue: {{queue}} <br>
-    currentFloor: {{currentFloor}}
 </template>
 
 <script>
@@ -64,7 +63,7 @@ methods: {
       }, Math.abs(this.countFloorsBetween) * 1000)
   },
   setCurrentFloor() {
-    this.currentFloor = {...this.queue[0]}
+    this.currentFloor = this.queue[0]
     this.currentFloor.waiting = true;
     setTimeout(() => {
       this.currentFloor.waiting = false;

@@ -6,10 +6,9 @@
             <button 
             class="floor-button" 
             :class="{'floor-button-active': isWaitingCabine}" 
-            :disabled="currentFloor.item === floor.item || isWaitingCabine"
+            :disabled="(currentFloor.item === floor.item && !isGoing) || isWaitingCabine"
             @click="callElevator" 
             >⦿</button>
-            {{isWaitingCabine}}
         </div>
     </div>
     
@@ -21,7 +20,8 @@
         props: {
             floor: Object,
             queue: Array,
-            currentFloor: Object
+            currentFloor: Object,
+            isGoing: Boolean
         },
         methods: {
             callElevator() {
@@ -31,7 +31,7 @@
         },
         computed: {
             isWaitingCabine() {
-                // todo: может быть стоит проверять что первый элемент равен floor.item
+                if(this.floor.waiting) return false
                 return this.queue.some(floor => floor.item === this.floor.item)
             }
         }

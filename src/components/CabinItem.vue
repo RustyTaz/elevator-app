@@ -7,17 +7,14 @@
 		}"
 		:class="{ primary: currentFloor.waiting }"
 	>
-		<div>
+		<div class="screen">
 			<span>{{ whereCabibeGoing }}</span>
 		</div>
 	</div>
-	countFloorsBetween {{ countFloorsBetween }} <br />
-	floorNumber {{ floorNumber }}
 </template>
 
 <script>
 export default {
-	// ↓ ↑
 	name: "cabin-item",
 	props: {
 		queue: Array,
@@ -57,6 +54,14 @@ export default {
 	animation-timing-function: linear;
 	animation-duration: 1s;
 	animation-iteration-count: infinite;
+}
+
+.cabine .screen {
+	width: 30px;
+	margin: 5px auto;
+	background-color: rgba(0, 0, 0, 0.623);
+	border-radius: 3px;
+	color: white;
 }
 
 @keyframes blink {
