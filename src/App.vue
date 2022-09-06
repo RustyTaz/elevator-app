@@ -58,10 +58,10 @@ methods: {
   callElevatorToFloor() {
       if(this.isGoing) return;
       this.isGoing = true;
-      this.countFloorsBetween = Math.abs(this.queue[0].item - this.currentFloor.item)
+      this.countFloorsBetween = this.queue[0].item - this.currentFloor.item
       setTimeout(() => {
             this.setCurrentFloor()
-      }, this.countFloorsBetween * 1000)
+      }, Math.abs(this.countFloorsBetween) * 1000)
   },
   setCurrentFloor() {
     this.currentFloor = {...this.queue[0]}

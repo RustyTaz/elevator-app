@@ -2,13 +2,13 @@
     <div class="floor">
         <div class="shahta"></div>
         <div class="floor-screen">
-            <span>{{floor.item + 1}}</span>
+            <span class="floor-number">{{floor.item + 1}}</span>
             <button 
             class="floor-button" 
             :class="{'floor-button-active': isWaitingCabine}" 
             :disabled="currentFloor.item === floor.item || isWaitingCabine"
             @click="callElevator" 
-            >нажать</button>
+            >⦿</button>
             {{isWaitingCabine}}
         </div>
     </div>
@@ -42,24 +42,50 @@
     .floor {
         height: 100px;
         width: 100%;
-        border-top: 2px solid black;
+        border-top: 1px solid lightgray;
         display: flex;
         gap: 10px;
     }
     .floor:last-child {
-        border-bottom: 2px solid black;
+        border-bottom: 1px solid lightgray;
     }
     .floor-screen {
         display: flex;
         flex-direction: column;
     }
+
+    .floor-button{
+        height: 20px;
+        width: 20px;
+        color:  rgb(50, 161, 180);
+        border: rgb(50, 161, 180) solid 1px;
+    }
+
+    .floor-button:hover{
+        background-color: rgb(204, 231, 233);
+    }
+
     .floor-button-active {
-        background-color: blue;
+        
+        color:  rgb(243, 192, 53);
+        border: rgb(243, 192, 53) solid 1px;
+    }
+    .floor-number{
+        font-weight: 600;
+        text-align: left;
     }
     .shahta {
         width: 80px;
         height: 100%;
-        border-left: 1px solid gray;
-        border-right: 1px solid gray;
+        border-left: 2px solid gray;
+        border-right: 2px solid gray;
     }
 </style>
+
+whereCabibeGoing(){
+            if(this.currentFloor.item>queue[0].item){
+                
+                return this.cabineScoreboard= "↓ " + queue[0].item + 1;
+            } else 
+            return this.cabineScoreboard= "↑ " + queue[0].item + 1;
+        }
