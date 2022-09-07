@@ -23,7 +23,6 @@ export default {
 	},
 	computed: {
 		floorNumber() {
-			// todo: посмотреть еще
 			if (this.queue.length) return this.queue[0].item;
 			if (this.currentFloor.item > 0) return this.currentFloor.item;
 			return 0;
