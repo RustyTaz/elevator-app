@@ -1,5 +1,4 @@
 <template>
-	{{ this.queue }}
 	<div class="elevator">
 		<cabin-item
 			v-for="cabin in cabines"
@@ -13,7 +12,7 @@
 			:floor="item"
 			:currentFloor="item.currentFloor"
 			:shaftCount="cabines.length"
-			v-model:queue="queue"
+			:queue="queue"
 			@call="callElevatorToFloor"
 		></floor-component>
 	</div>
@@ -39,24 +38,20 @@ export default {
 	},
 	methods: {
 		callElevatorToFloor(floor) {
-			if (
-				!(
-					this.cabines.filter((c) => c.currentFloor === floor.item)
-						.length === 0
-				)
-			)
-				return;
+			if (!(this.cabines.filter((c) => c.currentFloor === floor.item).length === 0)) return;
+
 			if (this.queue.filter((f) => f.item === floor.item).length === 0) {
 				this.queue.push(floor);
 			}
 			const cabineToGo = this.findFreeAndClosestCabine(floor.item);
-			console.log(cabineToGo);
+	
 			if (!cabineToGo) return;
 			floor.waiting = true;
 			cabineToGo.countFloorsBetween =
 				floor.item - cabineToGo.currentFloor;
 			cabineToGo.currentFloor = floor.item;
 			cabineToGo.inAction = true;
+
 			setTimeout(() => {
 				this.setCurrentFloor(cabineToGo, floor);
 			}, Math.abs(cabineToGo.countFloorsBetween) * 1000);
@@ -64,11 +59,9 @@ export default {
 
 		findFreeAndClosestCabine(desiredFloor) {
 			const freeCabines = this.cabines.filter((c) => !c.inAction);
-			console.log(freeCabines);
 			const cabinePositions = freeCabines.map(
 				(item) => item.currentFloor
 			);
-			console.log(cabinePositions);
 			if (!cabinePositions) return;
 			const cabineToGoPosition = cabinePositions.reduce((prev, curr) =>
 				Math.abs(curr - desiredFloor) < Math.abs(prev - desiredFloor)
@@ -95,19 +88,71 @@ export default {
 		},
 	},
 	mounted() {
-		for (let i = 0; i < floors; i++) {
-			this.floors.push({ item: i, waiting: false });
+		if (localStorage.getItem("floors")) {
+			this.floors = JSON.parse(localStorage.getItem("floors"));
+			for (let i = 0; i < this.floors.length; i++) {
+				this.floors[i].waiting = false;
+			}
+		} else {
+			for (let i = 0; i < floors; i++) {
+				this.floors.push({ item: i, waiting: false });
+			}
+			this.floors.reverse();
 		}
-		this.floors.reverse();
-		for (let i = 0; i < cabines; i++) {
-			this.cabines.push({
-				id: i,
-				currentFloor: 0,
-				open: false,
-				inAction: false,
-				countFloorsBetween: null,
-			});
+
+		if (localStorage.getItem("cabines")) {
+			this.cabines = JSON.parse(localStorage.getItem("cabines"));
+			for (let i = 0; i < this.cabines.length; i++) {
+				this.cabines[i].inAction = false;
+				this.cabines[i].open = false;
+			}
+		} else {
+			for (let i = 0; i < cabines; i++) {
+				this.cabines.push({
+					id: i,
+					currentFloor: 0,
+					open: false,
+					inAction: false,
+					countFloorsBetween: null,
+				});
+			}
 		}
+
+		if (localStorage.getItem("queue")) {
+			this.queue = JSON.parse(localStorage.getItem("queue"));
+			if (this.queue.length > this.cabines.length) {
+				this.queue = this.queue.slice(
+					this.cabines.length,
+					this.queue.length
+				);
+			} else this.queue = [];
+		}
+		if (this.queue.length > 0)
+			setTimeout(() => {
+				for(let i =0; i < this.queue.length; i++){
+					this.callElevatorToFloor(this.queue[i]);
+				}
+			}, 1000);
+	},
+	watch: {
+		queue: {
+			handler() {
+				localStorage.setItem("queue", JSON.stringify(this.queue));
+			},
+			deep: true,
+		},
+		cabines: {
+			handler() {
+				localStorage.setItem("cabines", JSON.stringify(this.cabines));
+			},
+			deep: true,
+		},
+		floors: {
+			handler() {
+				localStorage.setItem("floors", JSON.stringify(this.floors));
+			},
+			deep: true,
+		},
 	},
 };
 </script>

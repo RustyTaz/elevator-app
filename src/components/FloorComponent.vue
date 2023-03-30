@@ -11,7 +11,7 @@
 				class="floor-button"
 				:class="{ 'floor-button-active': isWaitingCabine }"
 				:disabled="
-					(currentFloor === floor.item && !isGoing) || isWaitingCabine
+					(currentFloor === floor.item) || isWaitingCabine
 				"
 				@click="callElevator"
 			>
@@ -28,7 +28,6 @@ export default {
 		floor: Object,
 		queue: Array,
 		currentFloor: Object,
-		isGoing: Boolean,
 		shaftCount: Number,
 	},
 	methods: {

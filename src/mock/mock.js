@@ -1,2 +1,2 @@
-export const floors = 7;
-export const cabines = 4;
+export const floors = 8;
+export const cabines = 5;
