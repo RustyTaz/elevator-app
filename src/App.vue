@@ -1,16 +1,18 @@
 <template>
+	{{ this.queue }}
 	<div class="elevator">
 		<cabin-item
+			v-for="cabin in cabines"
+			:key="cabin.id"
+			:cabin="cabin"
 			:queue="queue"
-			:currentFloor="currentFloor"
-			:countFloorsBetween="countFloorsBetween"
 		></cabin-item>
 		<floor-component
 			v-for="item in floors"
-			:key="item"
+			:key="item.item"
 			:floor="item"
-			:currentFloor="currentFloor"
-			:isGoing="isGoing"
+			:currentFloor="item.currentFloor"
+			:shaftCount="cabines.length"
 			v-model:queue="queue"
 			@call="callElevatorToFloor"
 		></floor-component>
@@ -20,7 +22,7 @@
 <script>
 import FloorComponent from "./components/FloorComponent.vue";
 import CabinItem from "./components/CabinItem.vue";
-import { floors } from "./mock/mock";
+import { cabines, floors } from "./mock/mock";
 
 export default {
 	name: "App",
@@ -31,30 +33,64 @@ export default {
 	data() {
 		return {
 			floors: [],
+			cabines: [],
 			queue: [],
-			currentFloor: { item: 0, waiting: false },
-			countFloorsBetween: 0,
-			isGoing: false,
 		};
 	},
 	methods: {
-		callElevatorToFloor() {
-			if (this.isGoing) return;
-			this.isGoing = true;
-			this.countFloorsBetween =
-				this.queue[0].item - this.currentFloor.item;
+		callElevatorToFloor(floor) {
+			if (
+				!(
+					this.cabines.filter((c) => c.currentFloor === floor.item)
+						.length === 0
+				)
+			)
+				return;
+			if (this.queue.filter((f) => f.item === floor.item).length === 0) {
+				this.queue.push(floor);
+			}
+			const cabineToGo = this.findFreeAndClosestCabine(floor.item);
+			console.log(cabineToGo);
+			if (!cabineToGo) return;
+			floor.waiting = true;
+			cabineToGo.countFloorsBetween =
+				floor.item - cabineToGo.currentFloor;
+			cabineToGo.currentFloor = floor.item;
+			cabineToGo.inAction = true;
 			setTimeout(() => {
-				this.setCurrentFloor();
-			}, Math.abs(this.countFloorsBetween) * 1000);
+				this.setCurrentFloor(cabineToGo, floor);
+			}, Math.abs(cabineToGo.countFloorsBetween) * 1000);
 		},
-		setCurrentFloor() {
-			this.currentFloor = this.queue[0];
-			this.currentFloor.waiting = true;
+
+		findFreeAndClosestCabine(desiredFloor) {
+			const freeCabines = this.cabines.filter((c) => !c.inAction);
+			console.log(freeCabines);
+			const cabinePositions = freeCabines.map(
+				(item) => item.currentFloor
+			);
+			console.log(cabinePositions);
+			if (!cabinePositions) return;
+			const cabineToGoPosition = cabinePositions.reduce((prev, curr) =>
+				Math.abs(curr - desiredFloor) < Math.abs(prev - desiredFloor)
+					? curr
+					: prev
+			);
+			return this.cabines.find(
+				(item) => item.currentFloor === cabineToGoPosition
+			);
+		},
+
+		setCurrentFloor(cabin, floor) {
+			cabin.open = true;
 			setTimeout(() => {
-				this.currentFloor.waiting = false;
+				cabin.open = false;
+				cabin.inAction = false;
+				floor.waiting = false;
 				this.queue.shift();
-				this.isGoing = false;
-				if (this.queue.length) this.callElevatorToFloor();
+				if (this.queue.filter((f) => !f.waiting).length)
+					this.callElevatorToFloor(
+						this.queue.find((f) => !f.waiting)
+					);
 			}, 3000);
 		},
 	},
@@ -63,6 +99,15 @@ export default {
 			this.floors.push({ item: i, waiting: false });
 		}
 		this.floors.reverse();
+		for (let i = 0; i < cabines; i++) {
+			this.cabines.push({
+				id: i,
+				currentFloor: 0,
+				open: false,
+				inAction: false,
+				countFloorsBetween: null,
+			});
+		}
 	},
 };
 </script>
@@ -82,8 +127,9 @@ export default {
 	margin: 0;
 	box-sizing: border-box;
 }
+
 .elevator {
-	width: 600px;
+	width: 1000px;
 	position: relative;
 	margin: 20px;
 }

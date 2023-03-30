@@ -1,14 +1,17 @@
 <template>
-	<div class="floor">
-		<div class="shahta"></div>
+	<div
+		class="floor"
+		:style="{
+			width: 90 * shaftCount + 20 + 'px',
+		}"
+	>
 		<div class="floor-screen">
 			<span class="floor-number">{{ floor.item + 1 }}</span>
 			<button
 				class="floor-button"
 				:class="{ 'floor-button-active': isWaitingCabine }"
 				:disabled="
-					(currentFloor.item === floor.item && !isGoing) ||
-					isWaitingCabine
+					(currentFloor === floor.item && !isGoing) || isWaitingCabine
 				"
 				@click="callElevator"
 			>
@@ -26,16 +29,15 @@ export default {
 		queue: Array,
 		currentFloor: Object,
 		isGoing: Boolean,
+		shaftCount: Number,
 	},
 	methods: {
 		callElevator() {
-			this.$emit("update:queue", [...this.queue, this.floor]);
-			this.$emit("call");
+			this.$emit("call", this.floor);
 		},
 	},
 	computed: {
 		isWaitingCabine() {
-			if (this.floor.waiting) return false;
 			return this.queue.some((floor) => floor.item === this.floor.item);
 		},
 	},
@@ -49,6 +51,7 @@ export default {
 	border-top: 1px solid lightgray;
 	display: flex;
 	gap: 10px;
+	justify-content: flex-end;
 }
 .floor:last-child {
 	border-bottom: 1px solid lightgray;
@@ -63,6 +66,7 @@ export default {
 	width: 20px;
 	color: rgb(50, 161, 180);
 	border: rgb(50, 161, 180) solid 1px;
+	z-index: 1000;
 }
 
 .floor-button:hover {
@@ -76,11 +80,5 @@ export default {
 .floor-number {
 	font-weight: 600;
 	text-align: left;
-}
-.shahta {
-	width: 80px;
-	height: 100%;
-	border-left: 2px solid gray;
-	border-right: 2px solid gray;
 }
 </style>
